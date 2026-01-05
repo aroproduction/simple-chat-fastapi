@@ -60,48 +60,21 @@ export function Chat() {
 
 				data.forEach(element => {
 					const messageDate = parseTimestamp(element.created_at);
-					const currentDate = messageDate ? new Date(
-						messageDate.getFullYear(),
-						messageDate.getMonth(),
-						messageDate.getDate(),
-					) : null;
-
-					if(shouldShowDateHeader(messageDate, lastDate)) {
-						let timestamp;
-						
-						const today = new Date();
-						const yesterday = new Date(today);
-						yesterday.setDate(yesterday.getDate() - 1);
-						
-						if(today.toDateString() === messageDate.toDateString()) {
-							timestamp = 'Today';
-						}
-						else if(yesterday.toDateString() === messageDate.toDateString()) {
-							timestamp = 'Yesterday';
-						}
-						else {
-							timestamp = messageDate.toLocaleDateString('en-US');
-						}
-
-						formattedMessages.push({
-							text: null,
-							timestamp: timestamp,
-							sender: '<DateHeader>',
-						});
-						lastDate = currentDate;
-						dateHeadersCreatedRef.current.add(messageDate.toDateString());
-					}
-
 					const updatedAtParsed = element.updated_at ? parseTimestamp(element.updated_at) : null;
+
 					formattedMessages.push({
 						id: element.id,
 						text: element.content,
 						timestamp: messageDate.toLocaleTimeString(),
+						created_at: element.created_at,
 						updatedAt: updatedAtParsed ? updatedAtParsed.toLocaleTimeString() : null,
 						sender: element.created_by,
 					});
 				})
-				setMessages(formattedMessages);
+				setMessages(prev => {
+					const combined = [...prev, ...formattedMessages]; 
+					return insertDateHeaders(combined);
+				});
 
 				setTimeout(() => {
 					messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
@@ -153,6 +126,7 @@ export function Chat() {
 				id: element.id,
 				text: element.content,
 				timestamp: parseTimestamp(element.created_at).toLocaleTimeString(),
+				created_at: element.created_at,
 				updatedAt: element.updated_at ? parseTimestamp(element.updated_at).toLocaleTimeString() : null,
 				sender: element.created_by,
 			  }));
@@ -161,7 +135,10 @@ export function Chat() {
 				setHasMore(false);
 			}
 	
-			setMessages(prev => [...olderMessages, ...prev]);
+			setMessages(prev => {
+				const combined = [...olderMessages, ...prev];
+				return insertDateHeaders(combined);
+			});
 		} catch (err) {
 			console.error("Failed to load older messages", err);
 		} finally {
@@ -180,6 +157,49 @@ export function Chat() {
 		  }
 		};
 	}, [handleScroll]);
+
+	const insertDateHeaders = (messages) => {
+		const filteredMessages = messages.filter(msg => msg.sender !== '<DateHeader>');
+		const result = [];
+		let lastDateString = null;
+	  
+		filteredMessages.forEach((msg) => {
+			const messageDate = parseTimestamp(msg.created_at);
+		  	if (!messageDate || isNaN(messageDate.getTime())) {
+				result.push(msg);
+				return;
+		  	}
+		  
+		  	const messageDateStr = messageDate.toDateString();
+	  
+			if (messageDateStr !== lastDateString) {
+				let timestamp;
+				
+				const today = new Date();
+				const yesterday = new Date(today);
+				yesterday.setDate(yesterday.getDate() - 1);
+		
+				if (messageDateStr === today.toDateString()) {
+					timestamp = 'Today';
+				} else if (messageDateStr === yesterday.toDateString()) {
+					timestamp = 'Yesterday';
+				} else {
+					timestamp = messageDate.toLocaleDateString('en-US');
+				}
+	  
+				result.push({
+					text: null,
+					timestamp: timestamp,
+					sender: '<DateHeader>',
+				});
+				lastDateString = messageDateStr;
+		  	}
+	  
+		  	result.push(msg);
+		});
+		
+		return result;
+	}
 
 	const handleSendMessage = async () => {
 		if (!inputValue.trim()) {
