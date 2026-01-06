@@ -4,7 +4,7 @@ import { parseTimestamp } from '../utils/dateUtils';
 
 import { WS_BASE_URL } from '../config/api';
 
-export function useWebSocket({ username, onMessage, onOnlineCount, dateHeadersCreated }) {
+export function useWebSocket({ username, onMessage, onOnlineCount, hasTodayMessagesRef }) {
     const ws = useRef(null);
     const [userlist, setUserlist] = useState([])
     const onMessageRef = useRef(onMessage);
@@ -50,7 +50,7 @@ export function useWebSocket({ username, onMessage, onOnlineCount, dateHeadersCr
 
                 const shouldShowDateHeader = currentDate &&
                     (!lastDateRef.current || currentDate.getTime() !== lastDateRef.current.getTime()) &&
-                    !dateHeadersCreated.has(currentDate.toDateString());
+                    !hasTodayMessagesRef.current;
 
                 if(shouldShowDateHeader) {
                     lastDateRef.current = currentDate;

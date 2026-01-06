@@ -20,22 +20,15 @@ export function Chat() {
     const [hasMore, setHasMore] = useState(true);
 	const chatContainerRef = useRef(null);
 	const messagesEndRef = useRef(null);
+	const hasTodayMessagesRef = useRef(false);
 	const [inputValue, setInputValue] = useState('');
 	const inputRef = useRef(null);
 	const { user } = useAuth();
 	const username = user?.username || "";
 	const [onlineUsers, setOnlineUsers] = useState(0);
-	const dateHeadersCreatedRef = useRef(new Set());
 	const onMessage = useCallback(
 		(msg) => {
 			setMessages(prev => [...prev, msg]);
-
-			if(msg.sender === '<DateHeader>' && msg.timestamp) {
-				const headerDate = new Date(msg.timestamp);
-				if (!isNaN(headerDate.getTime())) {
-					dateHeadersCreatedRef.current.add(headerDate.toDateString());
-				}
-			}
 		},
 		[]
 	);
@@ -43,11 +36,11 @@ export function Chat() {
 		(count) => setOnlineUsers(count),
 		[]
 	);
-	const {ws, sendMessage, userlist, } = useWebSocket({
+	const { ws, sendMessage, userlist } = useWebSocket({
 		username: username,
 		onMessage, 
 		onOnlineCount,
-		dateHeadersCreated: dateHeadersCreatedRef.current,
+		hasTodayMessagesRef
 	  });
 	const {makeRequest} = useApi()
 
@@ -60,6 +53,9 @@ export function Chat() {
 
 				data.forEach(element => {
 					const messageDate = parseTimestamp(element.created_at);
+					if (messageDate.toDateString() === new Date().toDateString()) {
+						hasTodayMessagesRef.current = true;
+					}
 					const updatedAtParsed = element.updated_at ? parseTimestamp(element.updated_at) : null;
 
 					formattedMessages.push({
