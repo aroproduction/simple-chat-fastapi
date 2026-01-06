@@ -286,7 +286,7 @@ export function Chat() {
 	return (
 		<div className={styles['chat-main-layout']}>
 			<div className={styles['chat-container']}>
-				<div className={styles['messages-wrapper']}>
+				<div className={styles['messages-wrapper']} ref={chatContainerRef}>
 					<ChatMessages 
 						messages={messages}
 						user={username}
