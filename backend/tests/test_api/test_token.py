@@ -14,6 +14,7 @@ async def test_token(async_client: httpx.AsyncClient):
     data = response.json()
 
     assert data["access_token"] is not None
+    async_client.cookies.set("access_token", data["access_token"])
     assert data["token_type"] == "bearer"
 
 
