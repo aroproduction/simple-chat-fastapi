@@ -253,9 +253,9 @@ export function Chat() {
 		try {
 			await makeRequest("delete-message", {
 				method: "DELETE",
-				body: JSON.stringify({
+				params: {
 					"id": messageId
-				}),
+				},
 			});
 			setMessages(prev => prev.filter(message => message.id !== messageId));
 		} catch(err) {

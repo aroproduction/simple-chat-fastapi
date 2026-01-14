@@ -251,7 +251,7 @@ async def delete_message(
     user: Annotated[get_current_user, Depends()],
     session: Annotated[AsyncSession, Depends(get_db)],
     redis_connection: Annotated[Redis, Depends(get_redis_connection)],
-    message_request: Annotated[DeleteMessageRequest, Body],
+    message_request: Annotated[DeleteMessageRequest, Query()],
 ):
     '''
     Delete a specific message from the chat by its ID.
