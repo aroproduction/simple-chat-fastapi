@@ -1,6 +1,3 @@
-from typing import Any
-
-
 import pytest
 from datetime import timedelta
 from time import sleep
@@ -11,8 +8,7 @@ from src.dependencies import get_current_user
 from src.exceptions import AuthenticationError
 
 
-@pytest.mark.asyncio
-async def test_get_current_user():
+def test_get_current_user():
     data = {"sub": "testname"}
     access_token = create_access_token(data)
     assert access_token is not None
@@ -21,15 +17,13 @@ async def test_get_current_user():
     assert token_data["username"] == "testname"
 
 
-@pytest.mark.asyncio
-async def test_get_current_user_with_invalid_token():
+def test_get_current_user_with_invalid_token():
     with pytest.raises(AuthenticationError):
         access_token = "invalid_token"
         get_current_user(access_token)
 
 
-@pytest.mark.asyncio
-async def test_get_current_user_with_expired_token():
+def test_get_current_user_with_expired_token():
     with pytest.raises(AuthenticationError):
         data = {"sub": "testname"}
         expires_delta = timedelta(milliseconds=499)

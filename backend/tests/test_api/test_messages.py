@@ -48,7 +48,7 @@ async def test_messages_with_invalid_token(async_client: httpx.AsyncClient):
 @pytest.mark.order(after="test_messages_with_invalid_token")
 @pytest.mark.asyncio
 async def test_messages_with_expired_token(async_client: httpx.AsyncClient):
-    expired_token = await create_expired_token({"sub": "testname"}, settings.SECRET_KEY)
+    expired_token = create_expired_token({"sub": "testname"}, settings.SECRET_KEY)
 
     response = await async_client.get(
         "/api/messages",

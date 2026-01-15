@@ -19,13 +19,6 @@ from src.core.redis_client import get_redis_connection
 from src.schemas.config import settings
 
 
-@pytest_asyncio.fixture(scope="session")
-async def redis_connection():
-    import fakeredis
-    redis_connection = fakeredis.FakeAsyncRedis()
-    return redis_connection
-
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "test.db")
 
@@ -42,6 +35,13 @@ TestingAsyncSessionLocal = async_sessionmaker(
     autoflush=False,
     bind=async_engine,
 )
+
+
+@pytest_asyncio.fixture(scope="session")
+def redis_connection():
+    import fakeredis
+    redis_connection = fakeredis.FakeAsyncRedis()
+    return redis_connection
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
@@ -91,7 +91,8 @@ async def async_client(app: FastAPI) -> AsyncClient:
         async with AsyncClient(transport=ASGITransport(app=manager.app), base_url="http://test") as client:
             yield client
 
-async def create_expired_token(data: dict, secret_key: str):
+
+def create_expired_token(data: dict, secret_key: str):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) - timedelta(days=1)
     to_encode.update({"exp": expire})

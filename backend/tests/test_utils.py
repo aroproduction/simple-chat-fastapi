@@ -3,13 +3,11 @@ from datetime import timedelta
 from time import sleep
 
 from src.utils import create_jwt_token, create_access_token, create_refresh_token, verify_token
-from src.dependencies import get_current_user
 
 from src.exceptions import AuthenticationError
 
 
-@pytest.mark.asyncio
-async def test_create_jwt_token():
+def test_create_jwt_token():
     data = {"sub": "testname"}
     expires_delta = timedelta(minutes=30)
 
@@ -17,22 +15,19 @@ async def test_create_jwt_token():
     assert jwt_token is not None
 
 
-@pytest.mark.asyncio
-async def test_create_access_token():
+def test_create_access_token():
     data = {"sub": "testname"}
     access_token = create_access_token(data)
     assert access_token is not None
 
 
-@pytest.mark.asyncio
-async def test_create_refresh_token():
+def test_create_refresh_token():
     data = {"sub": "testname"}
     access_token = create_refresh_token(data)
     assert access_token is not None
 
 
-@pytest.mark.asyncio
-async def test_verify_token():
+def test_verify_token():
     data = {"sub": "testname"}
     access_token = create_access_token(data)
     assert access_token is not None
@@ -41,15 +36,13 @@ async def test_verify_token():
     assert payload["sub"] == "testname"
 
 
-@pytest.mark.asyncio
-async def test_verify_token_invalid():
+def test_verify_token_invalid():
     with pytest.raises(AuthenticationError):
         jwt_token = "invalid_token"
         verify_token(jwt_token)
 
 
-@pytest.mark.asyncio
-async def test_verify_token_expiry():
+def test_verify_token_expiry():
     with pytest.raises(AuthenticationError):
         data = {"sub": "testname"}
         expires_delta = timedelta(milliseconds=499)
