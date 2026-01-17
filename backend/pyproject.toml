@@ -15,6 +15,7 @@ dependencies = [
     "fastapi-limiter>=0.1.6",
     "greenlet>=3.2.4",
     "httpx>=0.28.1",
+    "mypy>=1.19.1",
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.10.1",
     "pyjwt[crypto]>=2.10.1",
@@ -29,3 +30,17 @@ dependencies = [
     "uvicorn>=0.35.0",
     "websockets>=15.0.1",
 ]
+
+[tool.mypy]
+allow_redefinition = true
+warn_unused_configs = true
+warn_redundant_casts = true
+show_error_codes = true
+show_column_numbers = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_untyped_decorators = true
+follow_imports = "normal"
+enable_error_code = "possibly-undefined"
+strict = true
+warn_unused_ignores = true
